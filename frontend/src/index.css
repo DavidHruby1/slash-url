@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Keep a minimal reset for predictable sizing. */
+* {
+  box-sizing: border-box;
+}

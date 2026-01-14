@@ -1,0 +1,22 @@
+services:
+  app:
+    volumes:
+      - ./backend:/app/backend
+    command: uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend-dev:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    command: sh -c "npm install -g pnpm && pnpm install && pnpm dev -- --host"
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_TARGET=http://app:8000
+    networks:
+      - slashurl-network
+
+  db:
+    ports:
+      - "5432:5432"
