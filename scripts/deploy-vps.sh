@@ -28,6 +28,7 @@ if [ ! -f .env ]; then
     echo "⚠️  CRITICAL: Before continuing, edit .env and set:"
     echo "   - ADMIN_KEY (use a strong random string)"
     echo "   - POSTGRES_PASSWORD (use a strong random string)"
+    echo "   - DATABASE_URL (must include the same password as POSTGRES_PASSWORD)"
     echo "   - CADDY_DOMAIN (your domain, e.g., example.com)"
     echo ""
     echo "   Then run this script again."
@@ -42,6 +43,15 @@ echo ""
 echo "🔍 Checking configuration..."
 echo ""
 
+PLACEHOLDERS=$(grep -E '^[A-Za-z_][A-Za-z0-9_]*=CHANGE_ME_' .env | cut -d= -f1 || true)
+if [ -n "$PLACEHOLDERS" ]; then
+    echo "❌ .env contains placeholder values (CHANGE_ME_*)."
+    echo "   Please update these keys before continuing:"
+    echo "$PLACEHOLDERS" | sed 's/^/   - /'
+    echo ""
+    exit 1
+fi
+
 if [[ "$CADDY_DOMAIN" == "example.com" ]]; then
     echo "⚠️  Warning: CADDY_DOMAIN is still set to 'example.com'"
     echo "   Make sure your DNS A record points to this VPS:"
@@ -49,10 +59,13 @@ if [[ "$CADDY_DOMAIN" == "example.com" ]]; then
     echo ""
 fi
 
-if [[ "$ADMIN_KEY" == *"change-me"* ]]; then
-    echo "⚠️  Warning: ADMIN_KEY seems to be the default."
-    echo "   Please update it with a strong random string in .env!"
+DB_URL_PASS=$(echo "$DATABASE_URL" | sed -n 's|^[^:]*://[^:]*:\([^@]*\)@.*$|\1|p')
+if [ -n "$DB_URL_PASS" ] && [ -n "$POSTGRES_PASSWORD" ] && [ "$DB_URL_PASS" != "$POSTGRES_PASSWORD" ]; then
+    echo "❌ Configuration Error: Password mismatch!"
+    echo "   POSTGRES_PASSWORD in .env does not match the password inside DATABASE_URL."
+    echo "   Update DATABASE_URL to use the same password."
     echo ""
+    exit 1
 fi
 
 echo "🐳 Building and starting services with HTTPS (Caddy)..."

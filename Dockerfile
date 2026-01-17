@@ -1,7 +1,7 @@
 # =============================================================================
 # Stage 1: Build Frontend (Node + pnpm)
 # =============================================================================
-FROM node:20-alpine AS frontend-builder
+FROM node:22-alpine AS frontend-builder
 
 RUN npm install -g pnpm
 
@@ -17,7 +17,7 @@ RUN pnpm build
 # =============================================================================
 # Stage 2: Build Backend (Python 3.11)
 # =============================================================================
-FROM python:3.11-slim AS app
+FROM python:3.11.11-slim AS app
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -42,9 +42,11 @@ RUN useradd -m -u 1000 appuser && \
     chown -R appuser:appuser /app
 USER appuser
 
-EXPOSE 8000
+ENV APP_PORT=8000
+
+EXPOSE ${APP_PORT}
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:${APP_PORT}/health')"
 
-CMD ["uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "uvicorn backend.app.main:app --host 0.0.0.0 --port ${APP_PORT}"]
