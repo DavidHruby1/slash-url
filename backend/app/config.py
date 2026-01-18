@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import field_validator
+from pydantic import field_validator, Field
 
 
 class Settings(BaseSettings):
@@ -7,7 +7,7 @@ class Settings(BaseSettings):
 
     # required
     db_url: str
-    admin_key: str
+    admin_key: str = Field(..., min_length=16, max_length=128)
 
     # optional
     app_port: int = 8000
@@ -15,13 +15,6 @@ class Settings(BaseSettings):
     caddy_domain: str | None = None
     validate_urls: bool = False
     cors_origins: str = ''
-
-    @classmethod
-    @field_validator('admin_key')
-    def validate_admin_key(cls, value: str) -> str:
-        if not value or len(value) < 16:
-            raise ValueError('Admin key does not exist or is too short.')
-        return value
 
 
 settings = Settings()
