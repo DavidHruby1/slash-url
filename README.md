@@ -40,4 +40,10 @@ App endpoints:
 
 ## Admin auth
 
-Send `X-Admin-Key: <ADMIN_KEY>` on all `/api/*` requests.
+Admin auth uses a secure httpOnly cookie:
+
+- `POST /auth/login` with `{ "admin_key": "<ADMIN_KEY>" }` to set `admin_session`
+- `GET /auth/me` to check login status
+- `POST /auth/logout` to clear the cookie
+
+All `/api/*` routes require the `admin_session` cookie.
