@@ -1,1 +1,1 @@
-# TODO: Add admin auth header tests (missing/invalid key).
+# TODO: Add admin cookie auth tests (missing/invalid cookie).
