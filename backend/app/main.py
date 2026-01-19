@@ -14,11 +14,9 @@ from backend.app.schemas import (
     LinkCreateRequest,
     LinkListResponse,
     LinkResponse,
-    LinkStatsFilters,
     LinkStatsResponse,
     LinkUpdateRequest,
     LoginRequest,
-    LoginResponse,
 )
 
 app = FastAPI()
