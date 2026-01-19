@@ -1,4 +1,4 @@
-# 🔗 Slash URL
+# 🔗 Slash URL **STILL IN DEVELOPMENT**
 
 A self-hosted URL shortener with click analytics, built with **FastAPI**, **React**, and **PostgreSQL**. Currently in **foundation phase** – database models, auth layer, and infrastructure are complete.
 
