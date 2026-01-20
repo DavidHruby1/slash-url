@@ -72,6 +72,36 @@ def _validate_title_value(title: Optional[str]) -> Optional[str]:
     return stripped
 
 
+def _validate_expires_at_value(expires_at: Optional[datetime]) -> Optional[datetime]:
+    """Validate expires_at and raise ValueError if invalid.
+
+    Used by:
+    - LinkCreateRequest.validate_expires_at() (line 150)
+    - LinkUpdateRequest.validate_expires_at() (line 204)
+    """
+    if expires_at is None:
+        return expires_at
+    if expires_at.tzinfo is None or expires_at.utcoffset() is None:
+        raise ValueError("Expiration date must include timezone offset")
+    if expires_at <= datetime.now(timezone.utc):
+        raise ValueError("Expiration date must be in the future")
+
+    return expires_at
+
+
+def _validate_max_clicks_value(max_clicks: Optional[int]) -> Optional[int]:
+    """Validate max_clicks and raise ValueError if invalid.
+
+    Used by:
+    - LinkCreateRequest.validate_max_clicks() (line 160)
+    - LinkUpdateRequest.validate_max_clicks() (line 214)
+    """
+    if max_clicks is not None and max_clicks <= 0:
+        raise ValueError("max_clicks must be greater than 0")
+
+    return max_clicks
+
+
 class LoginRequest(BaseModel):
     admin_key: str = Field(..., min_length=16, max_length=128)
 
@@ -147,22 +177,12 @@ class LinkCreateRequest(BaseModel):
     @field_validator("expires_at")
     @classmethod
     def validate_expires_at(cls, expires_at: Optional[datetime]) -> Optional[datetime]:
-        if expires_at is None:
-            return expires_at
-        if expires_at.tzinfo is None or expires_at.utcoffset() is None:
-            raise ValueError("Expiration date must include timezone offset")
-        if expires_at <= datetime.now(timezone.utc):
-            raise ValueError("Expiration date must be in the future")
-
-        return expires_at
+        return _validate_expires_at_value(expires_at)
 
     @field_validator("max_clicks")
     @classmethod
     def validate_max_clicks(cls, max_clicks: Optional[int]) -> Optional[int]:
-        if max_clicks is not None and max_clicks <= 0:
-            raise ValueError("max_clicks must be greater than 0")
-
-        return max_clicks
+        return _validate_max_clicks_value(max_clicks)
 
 
 class LinkUpdateRequest(BaseModel):
@@ -201,22 +221,12 @@ class LinkUpdateRequest(BaseModel):
     @field_validator("expires_at")
     @classmethod
     def validate_expires_at(cls, expires_at: Optional[datetime]) -> Optional[datetime]:
-        if expires_at is None:
-            return expires_at
-        if expires_at.tzinfo is None or expires_at.utcoffset() is None:
-            raise ValueError("Expiration date must include timezone offset")
-        if expires_at <= datetime.now(timezone.utc):
-            raise ValueError("Expiration date must be in the future")
-
-        return expires_at
+        return _validate_expires_at_value(expires_at)
 
     @field_validator("max_clicks")
     @classmethod
     def validate_max_clicks(cls, max_clicks: Optional[int]) -> Optional[int]:
-        if max_clicks is not None and max_clicks <= 0:
-            raise ValueError("max_clicks must be greater than 0")
-
-        return max_clicks
+        return _validate_max_clicks_value(max_clicks)
 
 
 class LinkDeleteRequest(BaseModel):
