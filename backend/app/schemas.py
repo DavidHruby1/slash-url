@@ -104,6 +104,7 @@ def _validate_max_clicks_value(max_clicks: Optional[int]) -> Optional[int]:
 
 class LoginRequest(BaseModel):
     admin_key: str = Field(..., min_length=16, max_length=128)
+    remember_me: bool = False
 
 
 class LinkCreateRequest(BaseModel):
@@ -238,7 +239,7 @@ class LinkDeleteRequest(BaseModel):
         return [_validate_slug_format(slug) for slug in slugs]
 
 
-class SuccessResponse(BaseModel):
+class LoginResponse(BaseModel):
     success: bool
     message: str
 
@@ -251,14 +252,10 @@ class HealthResponse(BaseModel):
     ok: bool
 
 
-class ErrorResponse(BaseModel):
-    detail: str
-
-
 class LinkResponse(BaseModel):
     id: int
-    slug: str
     original_url: str
+    slug: str
     title: str
     clicks: int
     created_at: datetime
